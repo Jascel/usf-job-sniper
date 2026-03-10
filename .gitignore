@@ -1,0 +1,9 @@
+.env
+.tmp/
+credentials.json
+token.json
+com.usfjobsniper.scraper.plist
+SKILLS/
+__pycache__/
+*.pyc
+.DS_Store
