@@ -236,6 +236,9 @@ def send_discord_notification(job_data):
     job_id = job_data['id']
     apply_link = f"https://jobs.usf.edu/hcmUI/CandidateExperience/en/sites/USF/job/{job_id}"
     
+    score = job_data['match_score']
+    formatted_score = int(score) if isinstance(score, (int, float)) and score == int(score) else score
+    
     embed = {
         "title": job_data['title'],
         "url": apply_link,
@@ -244,7 +247,7 @@ def send_discord_notification(job_data):
             {"name": "💰 Salary", "value": job_data['salary'], "inline": True},
             {"name": "🕐 Hours", "value": job_data['hours'], "inline": True},
         ],
-        "footer": {"text": f"Job ID: {job_id}  •  IT Match: {job_data['match_score']}/5"}
+        "footer": {"text": f"Job ID: {job_id}  •  IT Match: {formatted_score}/5"}
     }
 
     payload = {
