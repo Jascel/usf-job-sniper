@@ -103,7 +103,9 @@ def fetch_job_detail(job_id):
                 break
         
         # --- Description: clean HTML ---
-        raw_desc = item.get("ExternalDescriptionStr", "") or ""
+        raw_desc = str(item.get("ExternalDescriptionStr") or "") + " " + \
+                   str(item.get("ExternalResponsibilitiesStr") or "") + " " + \
+                   str(item.get("ExternalQualificationsStr") or "")
         description = re.sub(r'<[^>]+>', ' ', raw_desc)
         description = re.sub(r'&nbsp;', ' ', description)
         description = re.sub(r'\s+', ' ', description).strip()
@@ -111,8 +113,8 @@ def fetch_job_detail(job_id):
         # --- Salary fallback: regex on description if structured field was empty ---
         if salary == "N/A" and description:
             salary_match = re.search(
-                r'\$[\d,]+(?:\.\d{1,2})?\s*(?:[-–/]\s*\$[\d,]+(?:\.\d{1,2})?)?',
-                description
+                r'\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?(?:\s*-\s*\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)?(?:\s*/\s*(?:hr|hour|week|wk|month|mo|year|yr))?',
+                description, re.IGNORECASE
             )
             if salary_match:
                 salary = salary_match.group(0).strip()
