@@ -23,9 +23,10 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
 # Tech Keywords for Match Score
-TECH_KEYWORDS = [
+HIGH_VALUE_KEYWORDS = ["it", "security", "programming", "analytics", "engineer", "engineering"]
+STANDARD_KEYWORDS = [
     "python", "sql", "cloud", "hardware", "support", "react", "node", 
-    "java", "data", "network", "security", "api", "help desk", "helpdesk"
+    "java", "data", "network", "api", "help desk", "helpdesk"
 ]
 
 def get_supabase_client() -> Client:
@@ -200,16 +201,22 @@ def determine_tier(title: str) -> int:
             return 1
     return 2
 
-def calculate_match_score(title: str, description: str) -> int:
-    """Calculate the IT Match Score (0-100)."""
-    score = 0
+def calculate_match_score(title: str, description: str) -> float:
+    """Calculate the IT Match Score (0-5.0)."""
+    score = 0.0
     text_to_check = f"{title.lower()} {description.lower()}"
     
-    for kw in TECH_KEYWORDS:
-        if kw in text_to_check:
-            score += 15 # +15 points per match
+    # Check High Value Keywords (3.5 pts each)
+    for kw in HIGH_VALUE_KEYWORDS:
+        if re.search(rf'\b{kw}\b', text_to_check):
+            score += 3.5
             
-    return min(score, 100)
+    # Check Standard Keywords (1.0 pt each)
+    for kw in STANDARD_KEYWORDS:
+        if kw in text_to_check:
+            score += 1.0
+            
+    return min(score, 5.0)
 
 def send_discord_notification(job_data):
     """Send a notification to the Discord Webhook."""
@@ -237,7 +244,7 @@ def send_discord_notification(job_data):
             {"name": "💰 Salary", "value": job_data['salary'], "inline": True},
             {"name": "🕐 Hours", "value": job_data['hours'], "inline": True},
         ],
-        "footer": {"text": f"Job ID: {job_id}  •  IT Match: {job_data['match_score']}/100"}
+        "footer": {"text": f"Job ID: {job_id}  •  IT Match: {job_data['match_score']}/5"}
     }
 
     payload = {
