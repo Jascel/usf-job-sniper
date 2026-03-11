@@ -12,10 +12,10 @@ On-campus jobs at USF are highly competitive and manual checking is inefficient.
 
 ## Key Features
 
-- **Real-Time Monitoring:** Scrapes the USF Oracle JSON endpoint every 60 minutes.
-- **IT Match Scoring:** Custom algorithm that ranks jobs (0-100) based on technical keyword density (Python, SQL, Security, etc.).
+- **Real-Time Monitoring:** Scrapes the USF Oracle job portal every 60 minutes.
+- **IT Match Scoring:** Custom algorithm that ranks jobs (0-5) based on technical keyword density (IT, Security, Programming, Analytics, Data, Network, etc.).
 - **Tampa Only Filter:** Automatically discards listings for St. Pete or Sarasota campuses.
-- **Cloud Integration:** Uses **Supabase (PostgreSQL)** to maintain a persistent state and ensure zero duplicate notifications. Hosted over **Github Actions** to keep running all the time.
+- **Cloud Integration:** Uses **Supabase (PostgreSQL)** to maintain a persistent state and ensure zero duplicate notifications. Hosted over **Github Actions** to keep running 24/7.
 - **Smart Skips:** Automatically filters out Federal Work Study (FWS) and roles requiring advanced degrees (Bachelors/Masters).
 
 ---
