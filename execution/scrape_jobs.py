@@ -227,7 +227,7 @@ def send_discord_notification(job_data):
     tier = 1 if job_data['is_tech_tier'] else 2
     
     if tier == 1:
-        prefix = "🚨 **URGENT: RELEVANT ROLE FOUND**"
+        prefix = "@everyone 🚨 **URGENT: RELEVANT ROLE FOUND**"
         color = 15158332 # Red
     else:
         prefix = "🔵 **NEW GENERAL LISTING**"
@@ -295,6 +295,7 @@ def process_jobs():
             except Exception as e:
                 logger.error(f"Error checking Supabase for job {job_id}: {e}")
                 # decide to continue or not. we'll continue and try to process.
+                continue
         
         if apply_hard_skips(job):
             logger.debug(f"Job {job_id} skipped due to hard filters.")
@@ -323,7 +324,7 @@ def process_jobs():
         desc_for_scoring = full_description if full_description else short_desc
         
         tier = determine_tier(title)
-        match_score = calculate_match_score(title, desc_for_scoring)
+        match_score = int(calculate_match_score(title, desc_for_scoring))
         
         job_record = {
             "id": job_id,
@@ -335,16 +336,19 @@ def process_jobs():
         }
         
         # Insert into DB
+        insert_success = True
         if supabase:
             try:
                 supabase.table("usf_jobs").insert(job_record).execute()
                 logger.info(f"Inserted Job {job_id} into database.")
             except Exception as e:
                 logger.error(f"Failed to insert Job {job_id} into database: {e}")
+                insert_success = False
                 
-        # Send Notification
-        send_discord_notification(job_record)
-        new_jobs_count += 1
+        if insert_success:
+            # Send Notification
+            send_discord_notification(job_record)
+            new_jobs_count += 1
         
     logger.info(f"Processed {len(jobs)} total jobs, found {new_jobs_count} new valid jobs.")
 
