@@ -157,7 +157,7 @@ def apply_hard_skips(job) -> bool:
     location = (job.get("PrimaryLocation", "") or "").lower()
     
     # Check Location
-    if "st. petersburg" in location or "sarasota" in location:
+    if any(x in location for x in ["st. petersburg", "saint petersburg", "st. pete", "saint pete", "sarasota"]):
         return True
         
     # Check Eligibility
@@ -183,20 +183,17 @@ def determine_tier(title: str) -> int:
     """Determine if a job is Tier 1 (High Priority 1) or Tier 2 (General 2)."""
     title_lower = title.lower()
     
+    # Keywords for Tier 1: Highly specific IT/Security/High-Value Tech roles
+    tier1_exclusive = ["security", "programming", "analytics", "engineer", "engineering"]
     # Keywords that need word-boundary matching to avoid false positives
-    # (e.g. "it" matching "janitor", "ops" matching "options")
-    exact_keywords = ["it", "ops"]
-    # Keywords safe for simple substring matching
-    phrase_keywords = [
-        "student", "assistant", "security", "programming", "audio",
-        "help desk", "helpdesk", "analytics", "bulls media",
-        "engineer", "engineering", "intern", "tech"
-    ]
+    exact_keywords = ["it"]
+    # Keywords for Tier 2: General student assistant/media/intern roles
+    # These will NOT trigger Tier 1 unless they also have keywords above
     
     for kw in exact_keywords:
         if re.search(rf'\b{kw}\b', title_lower):
             return 1
-    for kw in phrase_keywords:
+    for kw in tier1_exclusive:
         if kw in title_lower:
             return 1
     return 2
