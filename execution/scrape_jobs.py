@@ -320,6 +320,31 @@ def process_jobs():
         # Use the full description for match scoring if available, otherwise fall back to short description
         desc_for_scoring = full_description if full_description else short_desc
         
+        # --- Filter out Full-Time jobs based on hours, title, or high annual salaries ---
+        is_full_time = False
+        hours_lower = hours.lower()
+        title_lower = title.lower()
+        
+        if "full time" in hours_lower or "full-time" in hours_lower or "40 hrs" in hours_lower or "40  hrs" in hours_lower or "40 hours" in hours_lower:
+            is_full_time = True
+            
+        if "full time" in title_lower or "full-time" in title_lower:
+            is_full_time = True
+            
+        if is_full_time:
+            logger.info(f"Job {job_id} skipped: Explicitly marked as Full Time")
+            continue
+            
+        # If salary > $20,000, it's an annual full-time salary
+        try:
+            salary_cleaned = salary.replace('$', '').replace(',', '')
+            sal_matches = re.findall(r'\d+(?:\.\d+)?', salary_cleaned)
+            if any(float(match) > 20000 for match in sal_matches):
+                logger.info(f"Job {job_id} skipped: Salary implies full-time work ({salary})")
+                continue
+        except Exception:
+            pass
+        
         tier = determine_tier(title)
         match_score = int(calculate_match_score(title, desc_for_scoring))
         
